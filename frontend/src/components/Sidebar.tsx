@@ -1,4 +1,5 @@
-import { Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, Plus, RefreshCw, Terminal, Trash2 } from 'lucide-react';
 import type { Conversation, HealthStatus } from '../lib/types';
 import { Logo } from './Logo';
 
@@ -26,6 +27,46 @@ function StatusRow({ label, value, ok }: { label: string; value: string; ok: boo
         />
         {value}
       </span>
+    </div>
+  );
+}
+
+/**
+ * Collapsible Ollama setup guide — the exact 3-terminal flow from the User Manual.
+ */
+function SetupGuide() {
+  const [open, setOpen] = useState(false);
+  const steps = [
+    { title: 'Install Ollama', cmd: 'ollama pull llama3.2', hint: 'from ollama.com, then pull a model' },
+    { title: 'Start the backend', cmd: 'uvicorn api.main:app --port 8000', hint: 'in ai_sentinel with .venv active — runs security + ML layers' },
+    { title: 'Run the frontend', cmd: 'npm run dev', hint: 'in frontend/ — proxies /api to the backend' },
+  ];
+  return (
+    <div className="mx-3 mb-3 rounded-xl border border-line bg-surface/70">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-panel-strong/40"
+      >
+        <Terminal size={13} className="shrink-0 text-accent" />
+        <span className="flex-1 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Connect Ollama</span>
+        <ChevronDown size={13} className={`text-ink-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <ol className="space-y-2 border-t border-line px-3 py-2.5 text-[11.5px]">
+          {steps.map((s, i) => (
+            <li key={s.title}>
+              <div className="font-medium text-ink-soft">{i + 1}. {s.title}</div>
+              <code className="mt-0.5 block select-all rounded-md bg-panel px-2 py-1 font-mono text-[10.5px] text-ink">{s.cmd}</code>
+              <div className="mt-0.5 text-[10.5px] text-ink-muted">{s.hint}</div>
+            </li>
+          ))}
+          <li className="text-[10.5px] text-ink-muted">
+            Every message passes: security rules → ML classifier → Ollama. See <span className="font-medium">User Manual</span> for troubleshooting.
+          </li>
+        </ol>
+      )}
     </div>
   );
 }
@@ -147,6 +188,9 @@ export function Sidebar({
           />
         </div>
       </div>
+
+      {/* Ollama setup guide */}
+      <SetupGuide />
     </aside>
   );
 }

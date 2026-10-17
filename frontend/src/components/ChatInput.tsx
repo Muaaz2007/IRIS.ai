@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useState, useEffect, useRef, type KeyboardEvent } from 'react';
 import { ArrowUp, Square } from 'lucide-react';
 
 interface ChatInputProps {

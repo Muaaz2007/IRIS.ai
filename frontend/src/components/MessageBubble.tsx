@@ -3,6 +3,7 @@ import { Check, Copy, ShieldAlert, TriangleAlert } from 'lucide-react';
 import type { ChatMessage } from '../lib/types';
 import { AssistantAvatar } from './Logo';
 import { MarkdownContent } from './MarkdownContent';
+import { PipelineTrace } from './PipelineTrace';
 
 function TypingIndicator() {
   return (
@@ -104,8 +105,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
               Something went wrong
             </div>
             <p className="mt-1 text-[13.5px] text-ink-soft">{message.error}</p>
-          </div>
-        ) : message.pending && message.content === '' ? (
+          </div>            ) : message.pending && message.content === '' ? (
           <TypingIndicator />
         ) : (
           <>
@@ -119,6 +119,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
             )}
           </>
         )}
+        <PipelineTrace message={message} />
       </div>
     </div>
   );

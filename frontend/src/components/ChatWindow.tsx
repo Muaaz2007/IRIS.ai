@@ -2,25 +2,18 @@ import { useEffect, useRef } from 'react';
 import { Code2, Lightbulb, Menu, Moon, ShieldCheck, Sparkles, Sun, Terminal } from 'lucide-react';
 import type { Conversation, HealthStatus } from '../lib/types';
 import { useTheme } from '../hooks/useTheme';
-import { HoneyEmberBackground } from '@/components/ui/honey-ember-background';
-import { PromptInput } from '@/components/ui/ai-chat-input';
+import { ChatInput } from './ChatInput';
 import { MessageBubble } from './MessageBubble';
-
-export type SendMeta = { model: string; effort: string };
 
 interface ChatWindowProps {
   conversation: Conversation | undefined;
   isStreaming: boolean;
   health: HealthStatus | null;
   demoMode: boolean;
-  onSend: (text: string, meta?: SendMeta) => void;
+  onSend: (text: string) => void;
   onStop: () => void;
   onMenu: () => void;
 }
-
-// Ollama models exposed in the composer's model picker.
-// Keep in sync with what the backend pulls (default: llama3.2, see User Manual).
-const MODELS = ['Llama 3.2', 'Llama 3.2 1B', 'Iris Sentinel'];
 
 const SUGGESTIONS = [
   { icon: ShieldCheck, label: 'Explain the safety pipeline', text: 'Explain how the security layer, ML classifier and Ollama work together in IRIS.' },
@@ -29,28 +22,22 @@ const SUGGESTIONS = [
   { icon: Lightbulb, label: 'Brainstorm features', text: 'Suggest 5 features that would make IRIS.ai stand out from other chatbots.' },
 ];
 
-/** Empty state — HoneyEmber backdrop, centered greeting + suggestions + composer. */
-function EmptyState({ onPick, isStreaming, onSend, onStop, greeting }: {
-  onPick: (text: string) => void;
-  isStreaming: boolean;
-  onSend: (text: string, meta?: SendMeta) => void;
-  onStop: () => void;
-  greeting: string;
-}) {
+/** Empty state — flat, centered greeting above the composer (minimal Claude-style). */
+function EmptyState({ onPick }: { onPick: (text: string) => void }) {
   return (
-    <HoneyEmberBackground className="flex min-h-full flex-1 flex-col items-center justify-center px-4 pb-6">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8">
       <div className="w-full max-w-2xl animate-fade-up text-center">
-        <h1 className="font-serif text-3xl font-bold text-ink dark:text-ink md:text-4xl">{greeting}</h1>
+        <h1 className="font-serif text-3xl font-bold text-ink md:text-4xl">Welcome to IRIS</h1>
         <p className="mt-2 text-[15px] text-ink-muted">
           Your guarded, local AI assistant — powered by Ollama, screened by the IRIS security &amp; ML layers.
         </p>
-        <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {SUGGESTIONS.map(({ icon: Icon, label, text }) => (
             <button
               key={label}
               type="button"
               onClick={() => onPick(text)}
-              className="group flex items-center gap-3 rounded-2xl border border-line bg-surface/80 px-4 py-3 text-left backdrop-blur-sm transition-all hover:border-accent/40 hover:shadow-composer dark:bg-surface/70"
+              className="group flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 text-left transition-all hover:border-accent/40 hover:shadow-composer"
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
                 <Icon size={15} />
@@ -59,18 +46,8 @@ function EmptyState({ onPick, isStreaming, onSend, onStop, greeting }: {
             </button>
           ))}
         </div>
-        <div className="mt-8 flex justify-center">
-          <PromptInput
-            placeholder={greeting.toLowerCase().includes('welcome') ? 'Ask anything...' : 'Reply to IRIS...'}
-            models={MODELS}
-            onSubmit={(value, meta) => {
-              if (isStreaming) onStop();
-              onSend(value, { model: meta.model, effort: meta.effort });
-            }}
-          />
-        </div>
       </div>
-    </HoneyEmberBackground>
+    </div>
   );
 }
 
@@ -88,11 +65,6 @@ export function ChatWindow({
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickRef = useRef(true);
   const messages = conversation?.messages ?? [];
-
-  // Greeting by time of day — small Claude-style touch.
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 5 ? 'Working late?' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   // Auto-scroll while streaming if the user is already near the bottom
   useEffect(() => {
@@ -152,38 +124,20 @@ export function ChatWindow({
       {/* Messages */}
       <div ref={scrollRef} onScroll={onScroll} className="scroll-thin min-h-0 flex-1 overflow-y-auto">
         {messages.length === 0 ? (
-          <EmptyState
-            onPick={onSend}
-            isStreaming={isStreaming}
-            onSend={onSend}
-            onStop={onStop}
-            greeting={greeting}
-          />
+          <EmptyState onPick={onSend} />
         ) : (
-          <>
-            <div className="mx-auto w-full max-w-3xl py-4">
-              {messages.map((m) => (
-                <MessageBubble key={m.id} message={m} />
-              ))}
-              <div className="h-4" />
-            </div>
-            <div className="mx-auto w-full max-w-3xl px-4 pb-6 md:px-0">
-              <div className="flex justify-center">
-                <PromptInput
-                  placeholder="Message IRIS..."
-                  models={MODELS}
-                  onSubmit={(value, meta) => {
-                    if (isStreaming) onStop();
-                    onSend(value, { model: meta.model, effort: meta.effort });
-                  }}
-                />
-              </div>
-              <p className="pt-2 text-center text-[11px] text-ink-muted">
-                IRIS.ai can make mistakes. Verify important information.
-              </p>
-            </div>
-          </>
+          <div className="mx-auto w-full max-w-3xl py-4">
+            {messages.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
+            <div className="h-4" />
+          </div>
         )}
+      </div>
+
+      {/* Composer */}
+      <div className="mx-auto w-full max-w-3xl">
+        <ChatInput onSend={onSend} onStop={onStop} isStreaming={isStreaming} />
       </div>
     </main>
   );
