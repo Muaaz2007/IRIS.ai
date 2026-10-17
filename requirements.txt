@@ -1,0 +1,10 @@
+# IRIS.ai / AI Sentinel runtime
+fastapi>=0.110
+uvicorn[standard]>=0.29
+httpx>=0.27
+
+# ML classifier (ml/train*.py, ml/predict.py)
+joblib>=1.3
+scikit-learn>=1.3
+pandas>=2.0
+numpy>=1.26
