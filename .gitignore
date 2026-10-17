@@ -11,3 +11,7 @@ __pycache__/
 train.tsv
 .env
 *.token
+
+# Security test output and audit logs
+security_test_results.csv
+logs/
