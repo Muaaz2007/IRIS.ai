@@ -1,0 +1,13 @@
+# Python environment and cache
+venv/
+__pycache__/
+*.pyc
+
+# Model artifacts
+*.joblib
+*.pkl
+
+# Full/private datasets and credentials
+train.tsv
+.env
+*.token
