@@ -1,10 +1,30 @@
-from pathlib import Path
+"""Evaluate the v3 classifier on data it was never trained on.
+
+Run from the repo root (venv active):
+
+    python -m ml.evaluate_errors                        # data/vanilla_test.csv (held out)
+    python -m ml.evaluate_errors data/vanilla_sample.csv
+    python -m ml.evaluate_errors data/vanilla_test.csv --errors 10
+
+`vanilla_test.csv` shares no prompts with `vanilla_train.csv`, so the numbers
+here are the honest ones to quote. `vanilla_sample.csv` overlaps the training
+data and only looks good — use it for spotting example errors, not accuracy.
+"""
+
+from __future__ import annotations
+
+import argparse
 import sys
+import time
+from pathlib import Path
 
 import pandas as pd
-
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    precision_recall_fscore_support,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 # Allow both `python ml/evaluate_errors.py` and `python -m ml.evaluate_errors`.
@@ -13,46 +33,61 @@ if str(ROOT) not in sys.path:
 
 from ml.predict import MODEL_PATH, model  # noqa: E402
 
-DATA_PATH = ROOT / "data" / "vanilla_sample.csv"
+DEFAULT_DATA = ROOT / "data" / "vanilla_test.csv"
 
-df = pd.read_csv(DATA_PATH).dropna(subset=["text", "label"])
 
-_, X_test, _, y_test = train_test_split(
-    df["text"],
-    df["label"],
-    test_size=0.2,
-    random_state=42,
-    stratify=df["label"],
-)
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("dataset", nargs="?", default=str(DEFAULT_DATA),
+                        help="CSV with columns text,label (default: held-out vanilla_test.csv)")
+    parser.add_argument("--errors", type=int, default=5,
+                        help="how many false positives / negatives to print (default 5)")
+    args = parser.parse_args()
 
-print(f"Evaluating: {MODEL_PATH.name}")
-predictions = model.predict(X_test)
+    path = Path(args.dataset)
+    if not path.exists():
+        sys.exit(f"Dataset not found: {path}")
 
-results = pd.DataFrame({
-    "text": X_test,
-    "actual": y_test,
-    "predicted": predictions,
-})
+    df = pd.read_csv(path).dropna(subset=["text", "label"])
+    print(f"Model:   {MODEL_PATH.name}")
+    print(f"Dataset: {path}  ({len(df)} rows)")
 
-print("Confusion matrix (rows=actual, columns=predicted):")
-print(confusion_matrix(
-    results["actual"],
-    results["predicted"],
-    labels=["benign", "harmful"],
-))
+    start = time.perf_counter()
+    predictions = model.predict(df["text"].tolist())
+    elapsed = time.perf_counter() - start
 
-print("\nClassification report:")
-print(classification_report(results["actual"], results["predicted"]))
+    results = pd.DataFrame({"text": df["text"], "actual": df["label"], "predicted": predictions})
 
-for actual, predicted, heading in [
-    ("benign", "harmful", "FALSE POSITIVES: benign prompts flagged harmful"),
-    ("harmful", "benign", "FALSE NEGATIVES: harmful prompts flagged benign"),
-]:
-    errors = results[
-        (results["actual"] == actual) &
-        (results["predicted"] == predicted)
-    ]
+    print(f"\nAccuracy: {accuracy_score(results['actual'], results['predicted']):.4f}")
+    print("\nConfusion matrix (rows=actual, columns=predicted):")
+    print(confusion_matrix(results["actual"], results["predicted"], labels=["benign", "harmful"]))
 
-    print(f"\n{heading} — {len(errors)} examples")
-    for text in errors["text"].head(5):
-        print(f"- {text}")
+    precision, recall, f1, support = precision_recall_fscore_support(
+        results["actual"], results["predicted"], labels=["harmful", "benign"]
+    )
+    for row, name in enumerate(["harmful", "benign"]):
+        print(f"{name:<8} precision {precision[row]:.4f}  recall {recall[row]:.4f}  "
+              f"f1 {f1[row]:.4f}  support {support[row]}")
+
+    benign_total = int((results["actual"] == "benign").sum())
+    harmless_blocked = int(((results["actual"] == "benign") & (results["predicted"] == "harmful")).sum())
+    print(f"\nFalse positive rate (benign flagged harmful): "
+          f"{harmless_blocked}/{benign_total} = {100 * harmless_blocked / max(benign_total, 1):.2f}%")
+    print(f"Latency: {1000 * elapsed / max(len(results), 1):.2f} ms per prompt "
+          f"({elapsed:.2f}s for {len(results)} prompts, CPU, single process)")
+
+    print("\nClassification report:")
+    print(classification_report(results["actual"], results["predicted"]))
+
+    for actual, predicted, heading in [
+        ("benign", "harmful", "FALSE POSITIVES: benign prompts flagged harmful"),
+        ("harmful", "benign", "FALSE NEGATIVES: harmful prompts scored benign"),
+    ]:
+        errors = results[(results["actual"] == actual) & (results["predicted"] == predicted)]
+        print(f"\n{heading} — {len(errors)} examples")
+        for text in errors["text"].head(args.errors):
+            print(f"- {str(text)[:160]}")
+
+
+if __name__ == "__main__":
+    main()

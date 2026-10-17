@@ -27,7 +27,9 @@ RULES = {
         r"\b(reveal|show|print|repeat)\b.{0,30}\b(system prompt|hidden instructions|initial instructions)\b",
     ],
     "authority": [
-        r"\b(i am|i'm|this is)\b.{0,20}\b(your )?(developer|creator|admin|administrator|openai|anthropic|owner)\b",
+        # "I am your developer" yes; "I am a developer, how do I..." no.
+        r"\b(i am|i'm|this is)\b.{0,20}\byour\b.{0,10}\b(developer|creator|admin|administrator|owner)\b",
+        r"\b(i am|i'm|this is)\b.{0,20}\b(from )?(openai|anthropic)\b",
         r"\b(authori[sz]ed|official|admin)\b.{0,20}\b(override|access|request|test|mode)\b",
     ],
 }

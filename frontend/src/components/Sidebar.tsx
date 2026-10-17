@@ -188,7 +188,7 @@ export function Sidebar({
             hint={
               health?.ml_classifier?.loaded
                 ? 'ML classifier loaded — scoring every prompt'
-                : health?.ml_classifier?.reason ?? 'No model loaded: train one with ml/train.py'
+                : health?.ml_classifier?.reason ?? 'No model loaded: train one with ml/train_v3.py'
             }
           />
         </div>

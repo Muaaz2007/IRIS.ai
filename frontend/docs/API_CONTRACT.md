@@ -1,5 +1,10 @@
 # IRIS.ai — Frontend ↔ Backend API Contract
 
+> **Canonical contract: [`../../docs/API_CONTRACT.md`](../../docs/API_CONTRACT.md)** —
+> it matches the shipped FastAPI gateway and includes real captured JSON/SSE payloads.
+> This file is the shorter frontend-facing summary; if they disagree, the canonical
+> file wins.
+
 The frontend assumes the Python backend (FastAPI recommended) exposes exactly these
 endpoints. Backend team: keep this file updated — the UI is generated from it.
 

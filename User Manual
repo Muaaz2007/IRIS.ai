@@ -38,6 +38,9 @@ This guide is for Windows Command Prompt (cmd). You'll need three terminal windo
 
 **If something goes wrong**
 - **Everything is blocked after a few attacks:** Three flagged prompts lock you out for 10 minutes. In a third window, run `curl -X POST http://127.0.0.1:11435/sentinel/reset`, or restart window 1.
-- **Model-load error in window 1:** Run `python ml/train_v4.py` once to rebuild the model.
+- **Model-load error in window 1 (or "ML classifier: standby" in the web UI):** Run
+  `python ml/train_v3.py` once to rebuild `ml/iris_text_classifier_v3.joblib`. The model file
+  is gitignored, so every machine trains it once. Hover the standby row in the web UI to see
+  the exact reason it failed to load.
 - **`ollama run` doesn't go through the sentinel:** Run `set OLLAMA_HOST=127.0.0.1:11435` again in that same window. It only applies to the window where you set it.
 - **Want the web page instead of the Ollama chat:** Run `uvicorn api.main:app` and open `http://127.0.0.1:8000/`.

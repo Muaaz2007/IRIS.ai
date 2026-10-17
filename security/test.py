@@ -1,7 +1,11 @@
 """
-Quick tests for the security layer. Run from the IRIS.ai folder:
+Quick tests for the security layer. Run from the IRIS.ai folder (repo root),
+with the venv active:
 
-    python -m security.test_enforcement
+    python -m security.test
+
+(Not `python security/test.py` — that puts security/ on sys.path instead of
+the repo root, and `import security.enforcement` fails.)
 """
 
 import base64
