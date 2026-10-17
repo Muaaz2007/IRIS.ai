@@ -1,13 +1,19 @@
 from pathlib import Path
+import sys
+
 import pandas as pd
-import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 
 ROOT = Path(__file__).resolve().parent.parent
+# Allow both `python ml/evaluate_errors.py` and `python -m ml.evaluate_errors`.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from ml.predict import MODEL_PATH, model  # noqa: E402
+
 DATA_PATH = ROOT / "data" / "vanilla_sample.csv"
-MODEL_PATH = ROOT / "ml" / "iris_text_classifier.joblib"
 
 df = pd.read_csv(DATA_PATH).dropna(subset=["text", "label"])
 
@@ -19,7 +25,7 @@ _, X_test, _, y_test = train_test_split(
     stratify=df["label"],
 )
 
-model = joblib.load(MODEL_PATH)
+print(f"Evaluating: {MODEL_PATH.name}")
 predictions = model.predict(X_test)
 
 results = pd.DataFrame({

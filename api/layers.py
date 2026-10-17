@@ -27,14 +27,18 @@ Classifier = Callable[[str], tuple[object, dict]]
 # Why the classifier is unavailable (surfaced by /api/health so the UI can
 # explain "standby" instead of leaving the user guessing).
 LOAD_ERROR: str | None = None
+# Label of the model file actually loaded (e.g. "v3"), shown in the sidebar.
+CLASSIFIER_VERSION: str | None = None
 
 
 def _load_classifier() -> Classifier | None:
     """Import ml/predict lazily — it loads a joblib model at import time."""
-    global LOAD_ERROR
+    global LOAD_ERROR, CLASSIFIER_VERSION
     try:
-        from ml.predict import predict_prompt  # type: ignore import-not-found
+        from ml.predict import MODEL_PATH, predict_prompt  # type: ignore import-not-found
 
+        stem = MODEL_PATH.stem  # iris_text_classifier_v3
+        CLASSIFIER_VERSION = stem.rsplit("_", 1)[-1] if "_v" in stem else "v1"
         return predict_prompt
     except Exception as exc:  # model missing / sklearn unavailable -> rules-only
         LOAD_ERROR = f"{type(exc).__name__}: {exc}"

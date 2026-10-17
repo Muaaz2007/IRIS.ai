@@ -37,29 +37,33 @@ ollama list
 Verify the API is up: <http://127.0.0.1:11434/api/tags> should return JSON.
 If not, run `ollama serve` in its own window.
 
-## 3. Make sure the ML classifier exists
+## 3. Train the ML classifier (v3 is the canonical model)
 
-The backend loads the newest model in `ml\` automatically
-(`iris_text_classifier.joblib`, `_v4`, `_v3`, `_v2`), so any of the training
-scripts works. Check what you have:
-
-```bat
-dir ml\*.joblib
-```
-
-Nothing there? Train one once (about a minute on `data\vanilla_sample.csv`):
+There is exactly one model: `ml\iris_text_classifier_v3.joblib`, built by
+`ml\train_v3.py` (~95% accuracy on `data\vanilla_train.csv` plus the reviewed
+benign examples). It is gitignored, so you build it once locally:
 
 ```bat
-python ml\train.py
+dir ml\iris_text_classifier_v3.joblib
 ```
 
-For the bigger v3 dataset use `python ml\train_v3.py` (saves
-`iris_text_classifier_v3.joblib` — still picked up automatically). To point at a
-model elsewhere: `set IRIS_MODEL_PATH=path\to\model.joblib`.
+Missing? Train it (a couple of minutes):
 
-Without any model the app still runs, but the sidebar shows
-**ML classifier: standby** (hover it — the reason is shown) and risky prompts
-only reach WARN instead of BLOCK.
+```bat
+python ml\train_v3.py
+```
+
+To use a model stored elsewhere: `set IRIS_MODEL_PATH=path\to\model.joblib`.
+
+Without the model the app still runs, but the sidebar shows
+**ML classifier: standby** (hover it — the reason is shown), risky prompts only
+reach WARN instead of BLOCK, and replies show `ML classifier · unscored`.
+
+Sanity check the model itself:
+
+```bat
+python ml\predict.py
+```
 
 ## 4. Window 1 — backend (security + ML + Ollama)
 
@@ -133,6 +137,6 @@ Blocked prompts answer `[AI Sentinel] Blocked: ...`.
 | Sidebar says "demo mode" | Backend not running, or not on port 8000 |
 | `ollama.reachable: false` | Start `ollama serve`; check http://127.0.0.1:11434/api/tags |
 | `model not found` | `ollama pull llama3.2`, or set `IRIS_MODEL` to an installed model |
-| ML classifier: standby | `python ml\train.py` (or `train_v3.py`) to create the joblib file; hover the row to see the exact reason |
+| ML classifier: standby | `python ml\train_v3.py` to create `iris_text_classifier_v3.joblib`; hover the row to see the exact reason |
 | Port 3000 busy | Vite picks 3001 — open that URL instead |
 | Everything blocked after 3 attempts | `curl -X POST http://127.0.0.1:8000/api/sentinel/reset` |

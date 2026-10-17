@@ -1,11 +1,11 @@
 """Load the harmful-prompt classifier and score text.
 
-The backend calls `predict_prompt(text)` from `api/layers.py`. Training scripts
-save different filenames (train.py -> `iris_text_classifier.joblib`,
-train_v2/v3/v4 -> versioned names), so this module picks the newest model that
-actually exists instead of hard-failing on one hardcoded name.
+The project has ONE canonical model: `iris_text_classifier_v3.joblib`, produced
+by `ml/train_v3.py` (≈95% accuracy, trained on data/vanilla_train.csv plus the
+reviewed benign writing examples).
 
-Override with IRIS_MODEL_PATH if the model lives somewhere else.
+`api/layers.py` calls `predict_prompt(text)`; the model file is gitignored, so
+train it once locally. Override the location with IRIS_MODEL_PATH.
 """
 
 import os
@@ -14,14 +14,7 @@ from pathlib import Path
 import joblib
 
 MODEL_DIR = Path(__file__).resolve().parent
-
-# Preferred when several exist is the most recently written file.
-CANDIDATE_NAMES = [
-    "iris_text_classifier.joblib",
-    "iris_text_classifier_v4.joblib",
-    "iris_text_classifier_v3.joblib",
-    "iris_text_classifier_v2.joblib",
-]
+DEFAULT_MODEL_NAME = "iris_text_classifier_v3.joblib"
 
 
 def _resolve_model_path() -> Path:
@@ -34,13 +27,13 @@ def _resolve_model_path() -> Path:
             raise FileNotFoundError(f"IRIS_MODEL_PATH does not exist: {path}")
         return path
 
-    existing = [MODEL_DIR / name for name in CANDIDATE_NAMES if (MODEL_DIR / name).exists()]
-    if not existing:
+    path = MODEL_DIR / DEFAULT_MODEL_NAME
+    if not path.exists():
         raise FileNotFoundError(
-            "No classifier model found in ml/. Train one first: python ml/train.py "
-            "(or train_v3.py / train_v4.py), or set IRIS_MODEL_PATH."
+            f"Missing classifier model: {path}. Train it once with: python ml/train_v3.py "
+            "(or set IRIS_MODEL_PATH)."
         )
-    return max(existing, key=lambda p: p.stat().st_mtime)
+    return path
 
 
 MODEL_PATH = _resolve_model_path()
