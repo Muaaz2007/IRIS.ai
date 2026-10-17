@@ -10,8 +10,11 @@ __pycache__/
 # Full/private datasets and credentials
 train.tsv
 .env
-*.token
-
-# Security test output and audit logs
+*.token# Security test output and audit logs
 security_test_results.csv
 logs/
+
+# Frontend build artifacts and source archives
+frontend/node_modules/
+frontend/dist/
+*.zip
