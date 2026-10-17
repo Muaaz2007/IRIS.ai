@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useChat } from './hooks/useChat';
 import { ChatWindow } from './components/ChatWindow';
 import { Sidebar } from './components/Sidebar';
+import { Landing } from './components/Landing';
 
 /**
- * IRIS.ai — Claude-style chat shell.
+ * IRIS.ai — opening page first, then the Claude-style chat shell.
  * Layout: left sidebar (conversations + pipeline status) | main chat pane.
  * All backend integration lives in hooks/useChat.ts -> lib/api.ts.
  */
@@ -24,7 +25,12 @@ export default function App() {
     refreshHealth,
   } = useChat();
 
+  const [entered, setEntered] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (!entered) {
+    return <Landing onEnter={() => setEntered(true)} />;
+  }
 
   return (
     <div className="flex h-full overflow-hidden bg-canvas text-ink">
