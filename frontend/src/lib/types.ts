@@ -30,7 +30,8 @@ export interface HealthStatus {
   status: string;
   ollama: { reachable: boolean; model?: string };
   security_layer: { loaded: boolean };
-  ml_classifier: { loaded: boolean; version?: string };
+  /** `reason` explains why loaded=false (missing model file, sklearn mismatch…). */
+  ml_classifier: { loaded: boolean; version?: string; reason?: string | null };
 }
 
 /** SSE event names emitted by POST /api/chat. */

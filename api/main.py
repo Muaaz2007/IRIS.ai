@@ -28,7 +28,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from api.layers import CLASSIFIER, OLLAMA_BASE, OLLAMA_MODEL, OLLAMA_TIMEOUT, gate, ollama_info
+from api.layers import CLASSIFIER, LOAD_ERROR, OLLAMA_BASE, OLLAMA_MODEL, OLLAMA_TIMEOUT, gate, ollama_info
 from security.session import get_strikes, hash_id, reset_strikes
 
 app = FastAPI(title="IRIS.ai", version="1.0.0")
@@ -68,7 +68,11 @@ async def health() -> dict[str, Any]:
         "status": "ok",
         "ollama": {"reachable": reachable, "model": model or OLLAMA_MODEL},
         "security_layer": {"loaded": True},
-        "ml_classifier": {"loaded": CLASSIFIER is not None, "version": "v4"},
+        "ml_classifier": {
+            "loaded": CLASSIFIER is not None,
+            "version": "v4",
+            "reason": None if CLASSIFIER is not None else LOAD_ERROR,
+        },
     }
 
 

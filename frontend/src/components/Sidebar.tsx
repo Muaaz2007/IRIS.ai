@@ -15,9 +15,9 @@ interface SidebarProps {
   className?: string;
 }
 
-function StatusRow({ label, value, ok }: { label: string; value: string; ok: boolean | null }) {
+function StatusRow({ label, value, ok, hint }: { label: string; value: string; ok: boolean | null; hint?: string }) {
   return (
-    <div className="flex items-center justify-between gap-2 text-[12px]">
+    <div className="flex items-center justify-between gap-2 text-[12px]" title={hint}>
       <span className="text-ink-muted">{label}</span>
       <span className="flex items-center gap-1.5 font-medium text-ink-soft">
         <span
@@ -185,6 +185,11 @@ export function Sidebar({
             label="ML classifier"
             value={health?.ml_classifier?.loaded ? `active${health.ml_classifier.version ? ` v${health.ml_classifier.version}` : ''}` : 'standby'}
             ok={health?.ml_classifier?.loaded ?? null}
+            hint={
+              health?.ml_classifier?.loaded
+                ? 'ML classifier loaded — scoring every prompt'
+                : health?.ml_classifier?.reason ?? 'No model loaded: train one with ml/train.py'
+            }
           />
         </div>
       </div>

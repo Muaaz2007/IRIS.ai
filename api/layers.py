@@ -24,14 +24,20 @@ OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))
 
 Classifier = Callable[[str], tuple[object, dict]]
 
+# Why the classifier is unavailable (surfaced by /api/health so the UI can
+# explain "standby" instead of leaving the user guessing).
+LOAD_ERROR: str | None = None
+
 
 def _load_classifier() -> Classifier | None:
     """Import ml/predict lazily — it loads a joblib model at import time."""
+    global LOAD_ERROR
     try:
         from ml.predict import predict_prompt  # type: ignore import-not-found
 
         return predict_prompt
-    except Exception:  # model missing / sklearn unavailable -> run rules-only
+    except Exception as exc:  # model missing / sklearn unavailable -> rules-only
+        LOAD_ERROR = f"{type(exc).__name__}: {exc}"
         return None
 
 
