@@ -10,6 +10,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="IRIS.ai — Ollama-powered chat, guarded by the IRIS security and ML layers." />
     <title>IRIS.ai</title>
+    <script>
+      /* Set theme class before first paint to avoid a flash of wrong theme. */
+      (function () {
+        try {
+          var t = localStorage.getItem('iris.theme');
+          if (t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

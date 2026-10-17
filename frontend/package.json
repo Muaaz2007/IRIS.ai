@@ -9,11 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0"
+    "remark-gfm": "^4.0.0",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
@@ -23,7 +25,11 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.6.3",
     "vite": "^5.4.10"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
   }
 }

@@ -2,7 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * IRIS.ai design tokens.
+ * Values are raw R-G-B triplets; Tailwind composes them into rgb(... / alpha).
+ * `.dark` on <html> switches every token to the dark palette.
+ */
 @layer base {
+  :root {
+    --c-canvas: 250 249 245;      /* #FAF9F5 main background */
+    --c-surface: 255 255 255;     /* cards / composer */
+    --c-panel: 240 238 230;       /* sidebar + user bubble */
+    --c-panel-strong: 232 229 219;
+    --c-ink: 31 30 29;            /* primary text */
+    --c-ink-soft: 61 59 56;
+    --c-ink-muted: 138 133 125;
+    --c-line: 229 226 216;
+    --c-accent: 201 100 66;       /* terracotta */
+    --c-accent-hover: 176 83 47;
+    --c-accent-soft: 246 231 222;
+    --c-success: 47 125 91;
+    --c-warning: 178 106 38;
+    --c-danger: 179 64 46;
+    --c-danger-soft: 249 231 227;
+
+    /* shadcn-style tokens (ui/ components) */
+    --c-background: 250 249 245;
+    --c-foreground: 31 30 29;
+    --c-card: 255 255 255;
+    --c-card-foreground: 31 30 29;
+    --c-popover: 255 255 255;
+    --c-popover-foreground: 31 30 29;
+    --c-primary: 31 30 29;
+    --c-primary-foreground: 250 249 245;
+    --c-secondary: 240 238 230;
+    --c-secondary-foreground: 61 59 56;
+    --c-muted: 240 238 230;
+    --c-muted-foreground: 138 133 125;
+    --c-accentfg: 232 229 219;    /* hover fill for icon buttons */
+    --c-accent-foreground: 31 30 29;
+    --c-destructive: 179 64 46;
+    --c-destructive-foreground: 255 255 255;
+    --c-border: 229 226 216;
+    --c-input: 229 226 216;
+    --c-ring: 201 100 66;
+  }
+
+  .dark {
+    --c-canvas: 38 38 36;         /* #262624 — Claude-dark canvas */
+    --c-surface: 48 48 46;
+    --c-panel: 24 24 23;
+    --c-panel-strong: 42 41 38;
+    --c-ink: 245 244 239;
+    --c-ink-soft: 217 213 204;
+    --c-ink-muted: 151 146 138;
+    --c-line: 60 58 54;
+    --c-accent: 201 100 66;
+    --c-accent-hover: 217 119 87;
+    --c-accent-soft: 56 41 31;
+    --c-success: 107 191 148;
+    --c-warning: 201 138 67;
+    --c-danger: 217 122 102;
+    --c-danger-soft: 58 36 30;
+
+    --c-background: 38 38 36;
+    --c-foreground: 245 244 239;
+    --c-card: 48 48 46;
+    --c-card-foreground: 245 244 239;
+    --c-popover: 40 40 38;
+    --c-popover-foreground: 245 244 239;
+    --c-primary: 245 244 239;
+    --c-primary-foreground: 38 38 36;
+    --c-secondary: 42 41 38;
+    --c-secondary-foreground: 217 213 204;
+    --c-muted: 42 41 38;
+    --c-muted-foreground: 151 146 138;
+    --c-accentfg: 42 41 38;
+    --c-accent-foreground: 245 244 239;
+    --c-destructive: 217 122 102;
+    --c-destructive-foreground: 24 24 23;
+    --c-border: 60 58 54;
+    --c-input: 60 58 54;
+    --c-ring: 201 100 66;
+  }
+
   html,
   body,
   #root {
@@ -18,20 +100,24 @@
   ::selection {
     background-color: #f0d9cb;
   }
+
+  .dark ::selection {
+    background-color: #4a3527;
+  }
 }
 
 @layer utilities {
   /* Warm, thin scrollbars */
   .scroll-thin {
     scrollbar-width: thin;
-    scrollbar-color: #d8d4c8 transparent;
+    scrollbar-color: rgb(var(--c-ink-muted) / 0.35) transparent;
   }
   .scroll-thin::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   .scroll-thin::-webkit-scrollbar-thumb {
-    background-color: #d8d4c8;
+    background-color: rgb(var(--c-ink-muted) / 0.35);
     border-radius: 999px;
   }
   .scroll-thin::-webkit-scrollbar-track {
@@ -44,4 +130,33 @@
   .scroll-hide::-webkit-scrollbar {
     display: none;
   }
+}
+
+/**
+ * Dark-mode recolor for HoneyEmberBackground (components/ui).
+ * The component ships hardcoded warm-honey tints for light mode; these
+ * structural selectors repaint its overlay layers in dark mode so the same
+ * component reads as "dark embers" instead of washing out the theme.
+ */
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true'] > div:first-child {
+  background-color: #23211e;
+}
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true'] > div:nth-child(2) {
+  background-color: #92400e;
+  opacity: 0.22;
+}
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true'] > div:nth-child(3) {
+  background-color: #78350f;
+  opacity: 0.2;
+}
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true'] > div:nth-child(4) {
+  background-color: #a16207;
+  opacity: 0.16;
+}
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true'] > div:nth-child(5) {
+  background-color: #7c2d12;
+  opacity: 0.18;
+}
+.dark [data-slot='honey-ember-background'] > div[aria-hidden='true']:nth-child(2) {
+  background-image: radial-gradient(circle at center, #fbbf24 1px, transparent 1px);
 }
