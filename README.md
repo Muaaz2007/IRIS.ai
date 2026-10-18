@@ -114,9 +114,9 @@ Threat catalogue with 13 attack types: **[docs/THREAT_MODEL.md](docs/THREAT_MODE
 | Member | Role | Contact |
 |--------|------|---------|
 | Muaaz (Muaaz2007) | Project lead — architecture, FastAPI gateway, security layer, deployment | — |
-| _fill in_ | ML / data — dataset preparation, classifier training, evaluation | — |
-| _fill in_ | Frontend / UX — chat shell, pipeline trace, status card | — |
-| _fill in_ | Documentation, demo video, compliance write-up | — |
+| Jiya | ML / data — dataset preparation, classifier training, evaluation | — |
+| Sackaria | Frontend / UX — chat shell, pipeline trace, status card | — |
+| Somadev | Documentation, demo video, compliance write-up | — |
 
 > The remaining rows come from the repository's contributors and still need their
 > names and roles confirmed by the team before submission.
