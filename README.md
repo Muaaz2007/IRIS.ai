@@ -119,8 +119,6 @@ Threat catalogue with 13 attack types: **[docs/THREAT_MODEL.md](docs/THREAT_MODE
 | Uthara | Security layer, threat detection, input validation, API protection, and security testing | phantomvex422-web |
 | Somadev | Documentation, demo video, compliance write-up |  |
 
-> The remaining rows come from the repository's contributors and still need their
-> names and roles confirmed by the team before submission.
 
 ## Links
 
